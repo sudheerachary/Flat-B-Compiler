@@ -28,9 +28,6 @@
 "<"						{ return '<'; }
 ":"						{ return ':'; }
 L?\"(\\.|[^\\"])*\"		{ return STRING; }
-[ \t]					{ /* Do nothing */ }
-.						{ 
-		  					printf("Unexpected token encountered: %s\n", yytext); 
-		  					return ETOK;
-						}
+([ \t]|[ \n])			{ /* Do nothing */ }
+.						{ return ETOK; }
 
