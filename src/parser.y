@@ -18,6 +18,7 @@
 %token INT
 %token GOTO
 %token PRINT
+%token PRINTLN
 %token READ
 %token ETOK
 %left '+'
@@ -56,21 +57,21 @@ statements:		assignment
 		|		while_block statements
 		| 		IDENTIFIER ':' while_block
 		|		IDENTIFIER ':' while_block statements
-		|		goto_block
-		|		goto_block statements
-		|		IDENTIFIER ':' goto_block
+		|		goto_block ';'
+		|		goto_block ';' statements
+		|		IDENTIFIER ':' goto_block ';'
 		|		IDENTIFIER ':' goto_block statements
-		|		read_line
-		|		read_line statements
-		|		IDENTIFIER ':' read_line
-		|		IDENTIFIER ':' read_line statements
-		|		print_line
-		|		print_line statements
-		|		IDENTIFIER ':' print_line
-		|		IDENTIFIER ':' print_line statements
+		|		read_line ';'
+		|		read_line ';' statements
+		|		IDENTIFIER ':' read_line ';'
+		|		IDENTIFIER ':' read_line ';' statements
+		|		print_line ';'
+		|		print_line ';' statements
+		|		IDENTIFIER ':' print_line ';'
+		|		IDENTIFIER ':' print_line ';' statements
 		;
 
-assignment:		value '=' expression
+assignment:		value '=' expression ';'
 
 for_block:		FOR IDENTIFIER '=' value ',' value '{' statements '}'
 		|		FOR IDENTIFIER '=' value ',' value ',' value '{' statements '}'
@@ -91,6 +92,7 @@ goto_block:		GOTO IDENTIFIER IF conditional
 print_line:		PRINT STRING ',' value
 		|		PRINT STRING
 		|		PRINT value
+		|		PRINTLN STRING
 		;
 
 read_line:		READ value

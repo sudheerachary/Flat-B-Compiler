@@ -5,6 +5,7 @@
 %%
 "int"					{ return INT; }
 "print"					{ return PRINT; }
+"println"				{ return PRINTLN; }
 "read"					{ return READ; }
 "for"					{ return FOR; }
 "if"					{ return IF; }
