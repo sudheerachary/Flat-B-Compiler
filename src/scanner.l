@@ -19,6 +19,10 @@
 "+"						{ return '+'; }
 "-"						{ return '-'; }
 "*"						{ return '*'; }
+"&&"					{ return AND;}	
+"||"					{ return OR;}
+"!="					{ return NOTEQUALS;}
+"!"						{ return NOT; }
 ("{"|"<%")				{ return '{'; }
 ("}"|"%>")				{ return '}'; }
 "["						{ return '['; }

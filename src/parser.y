@@ -21,6 +21,10 @@
 %token PRINTLN
 %token READ
 %token ETOK
+%token AND
+%token OR
+%token NOT
+%token NOTEQUALS
 %left '+'
 %left '*'
 
@@ -97,9 +101,18 @@ print_line:		PRINT STRING ',' value
 
 read_line:		READ value
 
-conditional:	expression '<' expression
+conditional:	sconditional AND conditional
+		|		sconditional OR conditional
+		|		NOT sconditional AND conditional
+		|		NOT sconditional OR conditional
+		|		NOT sconditional
+		|		sconditional
+		;
+
+sconditional:	expression '<' expression
 		|		expression '>' expression
 		|		expression EQUALS expression	
+		|		expression NOTEQUALS expression
 		;
 
 expression: 	expression '+' expression 
