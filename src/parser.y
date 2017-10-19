@@ -1,9 +1,9 @@
 %{
-  #include <stdio.h>
-  #include <stdlib.h>
-  FILE *yyin;
+  #include "AstDefs.h"
+  #include <bits/stdc++.h>
   int yylex (void);
   void yyerror (char const *s);
+  class Main *root = NULL;
 %}
 
 %token NUMBER
@@ -29,21 +29,29 @@
 %left '*'
 
 %%
-program:	decl_block code_block
+program:	'{' declarations '}' '{' statements '}' 
+{
+	$$ = new Main($2, $5);
+	root = $$;
+}
 
-decl_block:  '{' declarations '}'
+declarations:	{	$$ = new FieldDeclarations();	}
+			|	declarations declaration ';'
+			{	$$->store($2);	}
 
-code_block:  '{' statements '}'
+declaration:	INT variables
+			{	$$ = new FieldDeclaration(string($1), $2);	}
 
-declarations:	INT decl ';'
-			|	INT decl ';' declarations
-			;
 
-decl:	IDENTIFIER
-	|	IDENTIFIER '[' NUMBER ']'
-	|	IDENTIFIER ',' decl
-	|	IDENTIFIER '[' NUMBER ']' ',' decl	
+variables:	{	$$ = new Variables();	}
+	|	variables ',' variable
+	{	$$->store($3);	}
 	;
+
+variable:	IDENTIFIER
+		{	$$ = new Variable(string("Not Array"), string($1));	}
+		|	IDENTIFIER '[' NUMBER ']'
+		{	$$ = new Variable(string("Array"), string($1), $3);	}
 
 statements:		assignment
 		|		assignment statements
@@ -144,6 +152,6 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Correct usage: bcc filename\n");
 	}
 
-	yyin = fopen(argv[1], "r");
+	FILE *yyin = fopen(argv[1], "r");
 	yyparse();
 }
