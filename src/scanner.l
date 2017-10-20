@@ -18,18 +18,18 @@ using namespace std;
 "got"					{ return GOT; }
 "goto"					{ return GOTO; }
 [0-9][0-9]*				{ return NUMBER; }
-[a-zA-Z][a-zA-Z0-9]* 	{ return IDENTIFIER; }
+[a-zA-Z][a-zA-Z0-9]* 	{ yylval.val = strdup(yytext); return IDENTIFIER; }
 ";"						{ return SC; } 
 ","						{ return COMMA; }
-"+"						{ return ADD; }
-"-"						{ return SUB; }
-"*"						{ return MUL; }
-"&&"					{ return AND;}	
-"||"					{ return OR;}
-"!="					{ return NOTEQUALS;}
-"!"						{ return NOT; }
-"/"						{ return DIV; }
-"%"						{ return MOD; }
+"+"						{ yylval.val = strdup(yytext); return ADD; }
+"-"						{ yylval.val = strdup(yytext); return SUB; }
+"*"						{ yylval.val = strdup(yytext); return MUL; }
+"&&"					{ yylval.val = strdup(yytext); return AND;}	
+"||"					{ yylval.val = strdup(yytext); return OR;}
+"!="					{ yylval.val = strdup(yytext); return NOTEQUALS;}
+"!"						{ yylval.val = strdup(yytext); return NOT; }
+"/"						{ yylval.val = strdup(yytext); return DIV; }
+"%"						{ yylval.val = strdup(yytext); return MOD; }
 ("{"|"<%")				{ return '{'; }
 ("}"|"%>")				{ return '}'; }
 "["						{ return '['; }
@@ -39,7 +39,7 @@ using namespace std;
 ">"						{ return G; }
 "<"						{ return L; }
 ":"						{ return COL; }
-L?\"(\\.|[^\\"])*\"		{ return STRING; }
+L?\"(\\.|[^\\"])*\"		{ yylval.val = strdup(yytext); return STRING; }
 ([ \t]|[ \n])			{ /* Do nothing */ }
 .						{ return ETOK; }
 %%
