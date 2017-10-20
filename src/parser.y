@@ -3,30 +3,64 @@
   #include <bits/stdc++.h>
   int yylex (void);
   void yyerror (char const *s);
+  extern union Node yylval;
   class Main *root = NULL;
 %}
 
-%token NUMBER
-%token IDENTIFIER
-%token EQUALS
-%token STRING
+%token <num> NUMBER
+%token <val> IDENTIFIER
+%token <val> EQUALS
+%token <val> STRING
 %token WHILE
 %token GOT
 %token IF
 %token ELSE
 %token FOR
-%token INT
+%token <val> INT
 %token GOTO
-%token PRINT
-%token PRINTLN
+%token <val> PRINT
+%token <val> PRINTLN
 %token READ
 %token ETOK
-%token AND
-%token OR
-%token NOT
-%token NOTEQUALS
-%left '+'
-%left '*'
+%token <val> DIV
+%token <val> MOD
+%token <val> AND
+%token <val> OR
+%token <val> NOT
+%token <val> SC
+%token <val> NOTEQUALS
+%token <val> COMMA
+%token <val> ADD
+%token <val> MUL
+%token <val> SUB
+%token <val> G
+%token <val> L
+%token <val> EQ
+%token <val> COL
+
+%left EQUALS NOTEQUALS
+%left AND OR
+%left L G
+%left ADD SUB
+%left MUL DIV MOD
+%nonassoc NOT
+
+%type <main> program
+%type <fields> declarations
+%type <field> declaration
+%type <vars> variables
+%type <var> variable
+%type <stmts> statements
+%type <loc> value
+%type <expr> expression
+%type <assignstmt> assignment
+%type <forstmt> for_block
+%type <ifelsestmt> if_block
+%type <whilestmt> while_block
+%type <gotostmt> goto_block
+%type <print> print_line
+%type <read> read_line
+%type <block> block
 
 %%
 program:	'{' declarations '}' '{' statements '}' 
@@ -36,7 +70,7 @@ program:	'{' declarations '}' '{' statements '}'
 }
 
 declarations:	{	$$ = new FieldDeclarations();	}
-			|	declarations declaration ';'
+			|	declarations declaration SC
 			{	$$->store($2);	}
 
 declaration:	INT variables
@@ -44,7 +78,7 @@ declaration:	INT variables
 
 
 variables:	{	$$ = new Variables();	}
-	|	variables ',' variable
+	|	variables COMMA variable
 	{	$$->store($3);	}
 	;
 
@@ -53,86 +87,121 @@ variable:	IDENTIFIER
 		|	IDENTIFIER '[' NUMBER ']'
 		{	$$ = new Variable(string("Array"), string($1), $3);	}
 
-statements:		assignment
-		|		assignment statements
-		|		IDENTIFIER ':' assignment
-		|		IDENTIFIER ':' assignment statements
-		|		for_block
-		|		for_block statements
-		|		IDENTIFIER ':' for_block
-		|		IDENTIFIER ':' for_block statements
-		|		if_block
-		|		if_block statements
-		|		IDENTIFIER ':' if_block
-		|		IDENTIFIER ':' if_block statements
-		| 		while_block
-		|		while_block statements
-		| 		IDENTIFIER ':' while_block
-		|		IDENTIFIER ':' while_block statements
-		|		goto_block ';'
-		|		goto_block ';' statements
-		|		IDENTIFIER ':' goto_block ';'
-		|		IDENTIFIER ':' goto_block statements
-		|		read_line ';'
-		|		read_line ';' statements
-		|		IDENTIFIER ':' read_line ';'
-		|		IDENTIFIER ':' read_line ';' statements
-		|		print_line ';'
-		|		print_line ';' statements
-		|		IDENTIFIER ':' print_line ';'
-		|		IDENTIFIER ':' print_line ';' statements
+statements:	{	$$ = new Statements();	}
+		|	statements assignment 
+		{	$$->store($2);	}
+		|	statements IDENTIFIER COL assignment 
+		{	$4->setLabel(string($2));
+			$$->store($4);	}
+		|	statements for_block 
+		{	$$->store($2);	}
+		|	statements IDENTIFIER COL for_block 
+		{	$4->setLabel($2);	
+			$$->store($4);	}
+		|	statements if_block 
+		{	$$->store($2);	}
+		|	statements IDENTIFIER COL if_block 
+		{	$4->setLabel($2);	
+			$$->store($4);	}
+		|	statements while_block 
+		{	$$->store($2);	}
+		|	statements IDENTIFIER COL while_block 
+		{	$4->setLabel($2);	
+			$$->store($4);	}
+		|	statements goto_block SC 
+		{	$$->store($2);	}
+		|	statements IDENTIFIER COL goto_block 
+		{	$4->setLabel($2);	
+			$$->store($4);	}
+		|	statements read_line SC 
+		{	$$->store($2);	}
+		|	statements IDENTIFIER COL read_line 
+		{	$4->setLabel($2);	
+			$$->store($4);	}
+		|	statements print_line SC 
+		{	$$->store($2);	}
+		|	statements IDENTIFIER COL print_line SC 
+		{	$4->setLabel($2);	
+			$$->store($4);	}
 		;
 
-assignment:		value '=' expression ';'
+assignment:	value EQ expression SC
+		{	$$ = new Assignment($1, string($2), $3);	}
 
-for_block:		FOR IDENTIFIER '=' value ',' value '{' statements '}'
-		|		FOR IDENTIFIER '=' value ',' value ',' value '{' statements '}'
-		|		FOR IDENTIFIER '=' NUMBER ',' NUMBER '{' statements '}'
-		|		FOR IDENTIFIER '=' NUMBER ',' NUMBER ',' NUMBER '{' statements '}'
-		;
-
-if_block:	IF conditional '{' statements '}'
-		|	IF conditional '{' statements '}' ELSE '{' statements '}'
-		;
-
-while_block:	WHILE conditional '{' statements '}'
-
-goto_block:		GOTO IDENTIFIER IF conditional
-		|		GOT IDENTIFIER
-		;
-
-print_line:		PRINT STRING ',' value
-		|		PRINT STRING
-		|		PRINT value
-		|		PRINTLN STRING
-		;
-
-read_line:		READ value
-
-conditional:	sconditional AND conditional
-		|		sconditional OR conditional
-		|		NOT sconditional AND conditional
-		|		NOT sconditional OR conditional
-		|		NOT sconditional
-		|		sconditional
-		;
-
-sconditional:	expression '<' expression
-		|		expression '>' expression
+expression: 	expression SUB expression
+		{	$$ = new Expression($1, string($2), $3);	}
+		|		expression ADD expression 
+		{	$$ = new Expression($1, string($2), $3);	}
+		|		expression MUL expression 
+		{	$$ = new Expression($1, string($2), $3);	}
+		|		expression DIV expression 
+		{	$$ = new Expression($1, string($2), $3);	}
+		|		expression MOD expression 
+		{	$$ = new Expression($1, string($2), $3);	}
+		|		expression L expression
+		{	$$ = new Expression($1, string($2), $3);	}
+		|		expression G expression
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression EQUALS expression	
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression NOTEQUALS expression
-		;
-
-expression: 	expression '+' expression 
-		|		expression '*' expression 
+		{	$$ = new Expression($1, string($2), $3);	}
+		|		expression AND expression
+		{	$$ = new Expression($1, string($2), $3);	}
+		|		expression OR expression
+		{	$$ = new Expression($1, string($2), $3);	}
 		| 		value
-		|		NUMBER
+		{	$$ = new Expression($1);	}
 		;
 
 value:	IDENTIFIER
-	|	IDENTIFIER'['NUMBER']'
-	|	IDENTIFIER'['IDENTIFIER']'	
+	{	$$ = new Location(string($1));	}
+	|	IDENTIFIER '[' NUMBER ']'
+	{	$$ = new Location(string($1), $3);	}
+	|	IDENTIFIER '[' IDENTIFIER ']'	
+	{	$$ = new Location(string($1), string($3));	}
+	|	NUMBER
+	{	$$ = new Location($1);	}
 	;
+
+for_block:	FOR IDENTIFIER EQ value COMMA value block
+		{	$$ = new ForStatement(string($2), $4, $6, $7);	}
+		|	FOR IDENTIFIER EQ value COMMA value COMMA value block
+		{	$$ = new ForStatement(string($2), $4, $6, $8, $9);	}
+		;
+
+if_block:	IF expression block
+		{	$$ = new IfElseStatement($2, $3);	}
+		|	IF expression block ELSE block
+		{	$$ = new IfElseStatement($2, $3, $5);	}
+		;
+
+while_block:	WHILE expression block
+			{	$$ = new WhileStatement($2, $3);	}
+
+goto_block:	GOTO IDENTIFIER IF expression
+		{	$$ = new GotoStatement(string($2), $4);	}
+		|	GOT IDENTIFIER
+		{	$$ = new GotoStatement(string($2));	}
+		;
+
+block:	'{' statements '}'
+		{	$$ = new Block($2);	}
+	;
+
+print_line:	PRINT STRING COMMA value SC
+		{	$$ = new Print($2, $4);	}
+		|	PRINT STRING SC
+		{	$$ = new Print($2);	}
+		|	PRINT value SC
+		{	$$ = new Print($2);	}
+		|	PRINTLN STRING SC
+		{	$$ = new PrintLn($2);	}
+		;
+
+read_line:	READ value SC
+		{	$$ = new ReadLine($2);	}
+
 %%
 
 void yyerror (char const *s)

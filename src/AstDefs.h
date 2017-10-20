@@ -4,6 +4,39 @@ using namespace std;
 class AstNode {
 };
 
+union Node {
+	int num;
+	char *val;
+	class Variable *var;
+	class Variables *vars;
+	class FieldDeclaration *field;
+	class FieldDeclarations *fields;
+	class Location *loc;
+	class Expression *expr;
+	class Assignment *assignstmt;
+	class ForStatement *forstmt;
+	class WhileStatement *whilestmt;
+	class IfElseStatement *ifelsestmt;
+	class GotoStatement *gotostmt;
+	class Statements *stmts;
+	class Block *block;
+	class Print *print;
+	class PrintLn *println;
+	class Read *read;
+	class Main *main;
+	Node() {
+		num = 0;
+		val= NULL;
+		fields = NULL;
+		vars = NULL;
+		stmts = NULL;
+	}
+	~Node(){};
+};
+
+typedef union Node YYSTYPE;
+#define YYSTYPE_IS_DECLARED 1
+
 class Variable:public AstNode {
 	private:
 		// length if array type
@@ -65,31 +98,67 @@ class FieldDeclarations:public AstNode {
 
 class Statement:public AstNode {
 	private:
+		// label for goto
+		string label;
+		// type of statement
 		string stmt_type;
 	public:
 		Statement(string);
+		// setters & getters of type
+		void setType(string);
 		string getType();
+		// setters & getters of label
+		void setLabel(string);
+		string getLabel();
+};
+
+class Location:public AstNode {
+	private:
+		// Location of storage 
+		string identifier, index;
+		// number 
+		unsigned int value;
+		// type of variable
+		string type;
+	public:
+		Location(unsigned int);
+		Location(string);
+		Location(string, unsigned int);
+		Location(string, string);
 };
 
 class Expression:public Statement {
 	private:
-		string expr_type;
+		// lhs of expression
+		class Expression *lhs;
+		// rhs of expression
+		class Expression *rhs;
+		// single values for assignment
+		unsigned int value;
+		class Location *loc;
+		// operator
+		string operand;
 	public:
-		Expression(string, string);
-		string getType();
+		Expression(class Expression *, string, class Expression *);
+		Expression(class Location *);
 };
 
 class Assignment:public Statement {
 	private:
+		// rhs expression 
 		class Expression *expr;
-		string variable;
+		// location to be assigned
+		class Location *loc;
 	public:
-		Assignment(string, class Expression *);
-}
+		Assignment(class Location *, class Expression *);
+		Assignment(string, class Location *, class Expression *);
+};
 
 class WhileStatement:public Statement {
 	private:	
+		// conditional Statement
 		class Expression *condition;
+		// block under while
 		class Block *while_block;
 	public:
 		WhileStatement(class Expression *, class Block *);
@@ -97,22 +166,51 @@ class WhileStatement:public Statement {
 
 class ForStatement:public Statement {
 	private:
+		// looping variable 
 		string loop_variable;
-		class Expression *intialisation;
-		class Expression *condition;
-		class Expression *increment
+		// location of start end step size variables
+		class Location *v_start, *v_end, *v_step;
+		// block under for
 		class Block *for_block;
 	public:
-		ForStatement(string, class Expression *, class Expression *, class Expression *);
+		ForStatement(string, class Location *, class Location *, class Block *);
+		ForStatement(string, class Location *, class Location *, class Location *, class Block *);
 };
 
 class IfElseStatement:public Statement {
 	private:
+		// conditional Statement
 		class Expression *condition;
+		// if block Statements
 		class Block *if_block;
+		// else block Statements
 		class Block *else_block;
 	public:
+		IfElseStatement(class Expression *, class Block *);
 		IfElseStatement(class Expression *, class Block *, class Block *);
+};
+
+class GotoStatement:public Statement {
+	private:
+		// label for goto
+		string identifier;
+		// conditional goto
+		class Expression *condition;
+	public:
+		GotoStatement(string);
+		GotoStatement(string, class Expression *);
+};
+
+class Statements:public AstNode {
+	private:
+		// list of statements
+		std::vector<class Statement*> statements;
+	public:
+		Statements();
+		// store each statement
+		void store(class Statement*);
+		// return statements
+		std::vector<class Statement*> getStatements();
 };
 
 class Block:public AstNode {
@@ -123,13 +221,32 @@ class Block:public AstNode {
 		std::vector<class Statement*> getBlkStatements();
 };
 
-class Statements:public AstNode {
+class Print:public Statement {
 	private:
-		std::vector<class Statement*> statements;
+		// text to be displayed
+		string text;
+		// value to be displayed
+		class Location *value;
 	public:
-		Statements();
-		void push(class Statement*);
-		std::vector<class Statement*> getStatements();
+		Print(class Location *);
+		Print(string);
+		Print(string, class Location *);
+};
+
+class PrintLn:public Statement {
+	private:	
+		// text to be displayed
+		string text;
+	public:
+		PrintLn(string);
+};
+
+class ReadLine:public Statement {
+	private:
+		// value to be read
+		class Location *value;
+	public:
+		ReadLine(class Location *);
 };
 
 class Main:public AstNode {

@@ -1,5 +1,9 @@
 %{
+#include <bits/stdc++.h>
 #include "parser.tab.h"
+#include "AstDefs.h"
+extern union Node yylval;
+using namespace std;
 %}
 
 %%
@@ -14,25 +18,27 @@
 "goto"					{ return GOTO; }
 [0-9][0-9]*				{ return NUMBER; }
 [a-zA-Z][a-zA-Z0-9]* 	{ return IDENTIFIER; }
-";"						{ return ';'; } 
-","						{ return ','; }
-"+"						{ return '+'; }
-"-"						{ return '-'; }
-"*"						{ return '*'; }
+";"						{ return SC; } 
+","						{ return COMMA; }
+"+"						{ return ADD; }
+"-"						{ return SUB; }
+"*"						{ return MUL; }
 "&&"					{ return AND;}	
 "||"					{ return OR;}
 "!="					{ return NOTEQUALS;}
 "!"						{ return NOT; }
+"/"						{ return DIV; }
+"%"						{ return MOD; }
 ("{"|"<%")				{ return '{'; }
 ("}"|"%>")				{ return '}'; }
 "["						{ return '['; }
 "]"						{ return ']'; }
 "=="					{ return EQUALS; }
-"="						{ return '='; }
-">"						{ return '>'; }
-"<"						{ return '<'; }
-":"						{ return ':'; }
+"="						{ return EQ; }
+">"						{ return G; }
+"<"						{ return L; }
+":"						{ return COL; }
 L?\"(\\.|[^\\"])*\"		{ return STRING; }
 ([ \t]|[ \n])			{ /* Do nothing */ }
 .						{ return ETOK; }
-
+%%
