@@ -1,7 +1,8 @@
 %{
 #include <bits/stdc++.h>
-#include "parser.tab.h"
 #include "AstDefs.h"
+#include "parser.tab.h"
+#define YY_DECL extern "C" int yylex()
 extern union Node yylval;
 using namespace std;
 %}

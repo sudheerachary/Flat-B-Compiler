@@ -1,9 +1,10 @@
 %{
-  #include "AstDefs.h"
   #include <bits/stdc++.h>
-  int yylex (void);
-  void yyerror (char const *s);
+  #include "AstDefs.h"
+  extern "C" int yylex();
+  extern "C" int yyparse();
   extern union Node yylval;
+  void yyerror (char const *s);
   class Main *root = NULL;
 %}
 
@@ -126,7 +127,7 @@ statements:	{	$$ = new Statements();	}
 		;
 
 assignment:	value EQ expression SC
-		{	$$ = new Assignment($1, string($2), $3);	}
+		{	$$ = new Assignment($1, $3);	}
 
 expression: 	expression SUB expression
 		{	$$ = new Expression($1, string($2), $3);	}
@@ -187,7 +188,7 @@ goto_block:	GOTO IDENTIFIER IF expression
 
 block:	'{' statements '}'
 		{	$$ = new Block($2);	}
-	;
+		;
 
 print_line:	PRINT STRING COMMA value SC
 		{	$$ = new Print($2, $4);	}
@@ -196,7 +197,7 @@ print_line:	PRINT STRING COMMA value SC
 		|	PRINT value SC
 		{	$$ = new Print($2);	}
 		|	PRINTLN STRING SC
-		{	$$ = new PrintLn($2);	}
+		{	$$ = new Print($2);	}
 		;
 
 read_line:	READ value SC

@@ -21,8 +21,7 @@ union Node {
 	class Statements *stmts;
 	class Block *block;
 	class Print *print;
-	class PrintLn *println;
-	class Read *read;
+	class ReadLine *read;
 	class Main *main;
 	Node() {
 		num = 0;
@@ -63,7 +62,7 @@ class Variables:public AstNode {
 		// list of variables in a field declaration
 		std::vector<class Variable*> variables;
 	public:
-		Variables();
+		Variables(){}
 		// store all variables in a field declaration
 		void store(class Variable*);
 		// get list of variables
@@ -89,7 +88,7 @@ class FieldDeclarations:public AstNode {
 		// list of all declarations
 		std::vector<class FieldDeclaration*> field_declarations;
 	public:
-		FieldDeclarations();
+		FieldDeclarations(){}
 		// store all declarations
 		void store(class FieldDeclaration*);
 		// get declarations
@@ -97,13 +96,13 @@ class FieldDeclarations:public AstNode {
 };
 
 class Statement:public AstNode {
-	private:
+	protected:
 		// label for goto
 		string label;
 		// type of statement
 		string stmt_type;
 	public:
-		Statement(string);
+		Statement(){}
 		// setters & getters of type
 		void setType(string);
 		string getType();
@@ -151,7 +150,6 @@ class Assignment:public Statement {
 		class Location *loc;
 	public:
 		Assignment(class Location *, class Expression *);
-		Assignment(string, class Location *, class Expression *);
 };
 
 class WhileStatement:public Statement {
@@ -206,7 +204,7 @@ class Statements:public AstNode {
 		// list of statements
 		std::vector<class Statement*> statements;
 	public:
-		Statements();
+		Statements(){}
 		// store each statement
 		void store(class Statement*);
 		// return statements
@@ -231,14 +229,6 @@ class Print:public Statement {
 		Print(class Location *);
 		Print(string);
 		Print(string, class Location *);
-};
-
-class PrintLn:public Statement {
-	private:	
-		// text to be displayed
-		string text;
-	public:
-		PrintLn(string);
 };
 
 class ReadLine:public Statement {

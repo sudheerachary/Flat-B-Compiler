@@ -18,19 +18,8 @@ FieldDeclaration::FieldDeclaration(string datatype, class Variables *variables) 
 	this->variables = variables->getVariables();
 }
 
-Statement::Statement(string type) {
-	this->stmt_type = type;
-}
-
 Assignment::Assignment(class Location *loc, class Expression *expr) {
 	this->stmt_type = string("assignment");
-	this->loc = loc;
-	this->expr = expr;
-}
-
-Assignment::Assignment(string label, class Location *loc, class Expression *expr) {
-	this->stmt_type = string("assignment");
-	this->label = label;
 	this->loc = loc;
 	this->expr = expr;
 }
@@ -128,10 +117,6 @@ Print::Print(string text, class Location *value) {
 	this->value = value;
 }
 
-PrintLn::PrintLn(string text) {
-	this->text = text;
-}
-
 ReadLine::ReadLine(class Location *value) {
 	this->value = value;
 }
@@ -182,18 +167,18 @@ std::vector<class FieldDeclaration *> FieldDeclarations::getFieldDecls() {
 }	
 
 string Statement::getType() {
-	return this->type;
+	return this->stmt_type;
 }
 
-string Statement::setType(string type) {
-	this->type = type;
+void Statement::setType(string type) {
+	this->stmt_type = type;
 }
 
 string Statement::getLabel() {
 	return this->label;
 }
 
-string Statement::setLabel(string label) {
+void Statement::setLabel(string label) {
 	this->label = label;
 }
 
@@ -205,6 +190,6 @@ void Statements::store(class Statement *statement) {
 	this->statements.push_back(statement);
 }
 
-std::vector<class Statement *> getStatements() {
+std::vector<class Statement *> Statements::getStatements() {
 	return this->statements;
 }
