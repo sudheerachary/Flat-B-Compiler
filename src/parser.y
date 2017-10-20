@@ -223,5 +223,16 @@ int main(int argc, char *argv[])
 	}
 
 	FILE *yyin = fopen(argv[1], "r");
-	yyparse();
+
+	if (yyin == NULL){
+		printf("Can't open the given file!\n");
+		exit(-1);
+	}
+	do {
+		yyparse();
+	} while (!feof(yyin));
+	if (root)
+		// AST Generation
+		root->traverse();
+	return 0;
 }

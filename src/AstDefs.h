@@ -55,6 +55,8 @@ class Variable:public AstNode {
 		string getType();
 		// get name of variable
 		string getIdentifier();
+		//  traverse over tree
+		void traverse();
 };
 
 class Variables:public AstNode {
@@ -81,6 +83,8 @@ class FieldDeclaration:public AstNode {
 		string getDataType();
 		// get variables in a declaration
 		std::vector<class Variable*> getVariables();
+		//  traverse over tree
+		void traverse();
 };
 
 class FieldDeclarations:public AstNode {
@@ -93,6 +97,8 @@ class FieldDeclarations:public AstNode {
 		void store(class FieldDeclaration*);
 		// get declarations
 		std::vector<class FieldDeclaration*> getFieldDecls();
+		//  traverse over tree
+		void traverse();
 };
 
 class Statement:public AstNode {
@@ -109,6 +115,8 @@ class Statement:public AstNode {
 		// setters & getters of label
 		void setLabel(string);
 		string getLabel();
+		//  traverse over tree
+		void traverse(){}
 };
 
 class Location:public AstNode {
@@ -124,6 +132,8 @@ class Location:public AstNode {
 		Location(string);
 		Location(string, unsigned int);
 		Location(string, string);
+		//  traverse over tree
+		void traverse();
 };
 
 class Expression:public Statement {
@@ -140,6 +150,8 @@ class Expression:public Statement {
 	public:
 		Expression(class Expression *, string, class Expression *);
 		Expression(class Location *);
+		//  traverse over tree
+		void traverse();
 };
 
 class Assignment:public Statement {
@@ -150,6 +162,8 @@ class Assignment:public Statement {
 		class Location *loc;
 	public:
 		Assignment(class Location *, class Expression *);
+		//  traverse over tree
+		void traverse();
 };
 
 class WhileStatement:public Statement {
@@ -160,6 +174,8 @@ class WhileStatement:public Statement {
 		class Block *while_block;
 	public:
 		WhileStatement(class Expression *, class Block *);
+		//  traverse over tree
+		void traverse();
 };
 
 class ForStatement:public Statement {
@@ -170,9 +186,13 @@ class ForStatement:public Statement {
 		class Location *v_start, *v_end, *v_step;
 		// block under for
 		class Block *for_block;
+		// with step or no
+		string type;
 	public:
 		ForStatement(string, class Location *, class Location *, class Block *);
 		ForStatement(string, class Location *, class Location *, class Location *, class Block *);
+		//  traverse over tree
+		void traverse();
 };
 
 class IfElseStatement:public Statement {
@@ -183,9 +203,13 @@ class IfElseStatement:public Statement {
 		class Block *if_block;
 		// else block Statements
 		class Block *else_block;
+		// either if or ifelse
+		string type;
 	public:
 		IfElseStatement(class Expression *, class Block *);
 		IfElseStatement(class Expression *, class Block *, class Block *);
+		//  traverse over tree
+		void traverse();
 };
 
 class GotoStatement:public Statement {
@@ -194,9 +218,13 @@ class GotoStatement:public Statement {
 		string identifier;
 		// conditional goto
 		class Expression *condition;
+		// either gotoif or goto
+		string type;
 	public:
 		GotoStatement(string);
 		GotoStatement(string, class Expression *);
+		//  traverse over tree
+		void traverse();
 };
 
 class Statements:public AstNode {
@@ -209,6 +237,8 @@ class Statements:public AstNode {
 		void store(class Statement*);
 		// return statements
 		std::vector<class Statement*> getStatements();
+		//  traverse over tree
+		void traverse();
 };
 
 class Block:public AstNode {
@@ -217,6 +247,8 @@ class Block:public AstNode {
 	public:
 		Block(class Statements*);
 		std::vector<class Statement*> getBlkStatements();
+		//  traverse over tree
+		void traverse();
 };
 
 class Print:public Statement {
@@ -225,10 +257,14 @@ class Print:public Statement {
 		string text;
 		// value to be displayed
 		class Location *value;
+		// either num or id or array
+		string type;
 	public:
 		Print(class Location *);
 		Print(string);
 		Print(string, class Location *);
+		//  traverse over tree
+		void traverse();
 };
 
 class ReadLine:public Statement {
@@ -237,6 +273,8 @@ class ReadLine:public Statement {
 		class Location *value;
 	public:
 		ReadLine(class Location *);
+		//  traverse over tree
+		void traverse();
 };
 
 class Main:public AstNode {
@@ -247,5 +285,7 @@ class Main:public AstNode {
 		class Statements *statements;
 	public:
 		Main(class FieldDeclarations *, class Statements *);
+		//  traverse over tree
+		void traverse();
 
 };
