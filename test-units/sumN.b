@@ -1,6 +1,5 @@
 {
 	int data[100];
-	int i, sum;
 }
 
 {
