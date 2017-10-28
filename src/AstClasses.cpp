@@ -232,6 +232,7 @@ void FieldDeclaration::traverse() {
 	TBS;
 	cout<<"<Declaration>"<<endl;
 		tabs++;
+		TBS;
 		cout<<"DataType: "<<endl;
 		for (int i = 0; i < variables.size(); i++)
 			variables[i]->traverse();
@@ -252,7 +253,6 @@ void Variable::traverse() {
 void Location::traverse() {
 	TBS;
 	cout<<"<Location ";
-	TBS;
 	if (type.compare("number") == 0)
 		cout<<"number: "<<value;
 	else if (type.compare("variable") == 0)
@@ -261,7 +261,6 @@ void Location::traverse() {
 		cout<<"identifier: "<<identifier<<" index: "<<value;
 	else
 		cout<<"identifier: "<<identifier<<" index: "<<index;	
-	TBS;
 	cout<<" />"<<endl;
 }
 
@@ -374,7 +373,6 @@ void GotoStatement::traverse() {
 void Print::traverse() {
 	TBS;
 	cout<<"<Print ";
-	TBS;
 	if (type.compare("str") == 0) {
 		cout<<"string: "<<text;
 	}
@@ -389,7 +387,6 @@ void Print::traverse() {
 		value->traverse();
 		tabs--;
 	}
-	TBS;
 	cout<<" />";
 }
 
@@ -399,6 +396,5 @@ void ReadLine::traverse() {
 		tabs++;
 		value->traverse();
 		tabs--;
-	TBS;
 	cout<<" />";
 }

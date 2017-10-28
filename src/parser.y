@@ -55,196 +55,145 @@ program:	OP declarations CP OP statements CP
 	}
 	;
 
-declarations:	{	$$ = new FieldDeclarations();
-					std::cout<<"creating DECLS"<<std::endl;	}
+declarations:	{	$$ = new FieldDeclarations();	}
 			|	declarations declaration SC
-			{	$$->store($2);
-				std::cout<<"Storing DECLS"<<std::endl;	}
+			{	$$->store($2);	}
 			;
 
 declaration:	INT variables
-			{	$$ = new FieldDeclaration(string($1), $2);
-				std::cout<<"creating DECL"<<std::endl;	}
+			{	$$ = new FieldDeclaration(string($1), $2);	}
 			;
 
 
 variables:		variable
 	{	$$ = new Variables();
-		$$->store($1);
-		std::cout<<"Storing Variable"<<std::endl;	}
+		$$->store($1);	}
 	|	variables COMMA variable
 	{	$$->store($3);	}
 	;
 
 variable:	IDENTIFIER
-		{	std::cout<<IDENTIFIER<<std::endl;
-		$$ = new Variable(string("Not Array"), string($1));	}
+		{	$$ = new Variable(string("Not Array"), string($1));	}
 		|	IDENTIFIER OSB NUMBER CSB
-		{	std::cout<<IDENTIFIER<<NUMBER<<std::endl;
-		$$ = new Variable(string("Array"), string($1), $3);	}
+		{	$$ = new Variable(string("Array"), string($1), $3);	}
 		;
 
-statements:	{	$$ = new Statements();	
-				std::cout<<"STATEMENT CREATION"<<std::endl;	}
+statements:	{	$$ = new Statements();	}
 		|	statements assignment SC
-		{	$$->store($2);
-			std::cout<<"ASSIGNEMNT STORE"<<std::endl;	}
+		{	$$->store($2);	}
 		|	statements IDENTIFIER COL assignment SC
 		{	$4->setLabel(string($2));
-			$$->store($4);
-			std::cout<<"ASSIGNEMNT STORE"<<std::endl;	}
+			$$->store($4);	}
 		|	statements for_block 
-		{	$$->store($2);
-			std::cout<<"FOR STORE"<<std::endl;	}
+		{	$$->store($2);	}
 		|	statements IDENTIFIER COL for_block 
 		{	$4->setLabel($2);	
-			$$->store($4);	
-			std::cout<<"FOR STORE"<<std::endl;	}
+			$$->store($4);	}
 		|	statements if_block 
-		{	$$->store($2);
-			std::cout<<"IF STORE"<<std::endl;	}
+		{	$$->store($2);	}
 		|	statements IDENTIFIER COL if_block 
 		{	$4->setLabel($2);	
-			$$->store($4);
-			std::cout<<"IF STORE"<<std::endl;	}
+			$$->store($4);	}
 		|	statements while_block 
-		{	$$->store($2);
-			std::cout<<"WHILE STORE"<<std::endl;	}
+		{	$$->store($2);	}
 		|	statements IDENTIFIER COL while_block 
 		{	$4->setLabel($2);	
-			$$->store($4);	
-			std::cout<<"WHILE STORE"<<std::endl;	}
+			$$->store($4);	}
 		|	statements goto_block SC 
-		{	$$->store($2);	
-			std::cout<<"GOTO STORE"<<std::endl;	}
+		{	$$->store($2);	}
 		|	statements IDENTIFIER COL goto_block SC
 		{	$4->setLabel($2);	
-			$$->store($4);	
-			std::cout<<"GOTO STORE"<<std::endl;	}
+			$$->store($4);	}
 		|	statements read_line SC 
-		{	$$->store($2);	
-			std::cout<<"READ STORE"<<std::endl;	}
+		{	$$->store($2);	}
 		|	statements IDENTIFIER COL read_line 
 		{	$4->setLabel($2);	
-			$$->store($4);	
-			std::cout<<"READ STORE"<<std::endl;	}
+			$$->store($4);	}
 		|	statements print_line SC 
-		{	$$->store($2);	
-			std::cout<<"PRINT STORE"<<std::endl;	}
+		{	$$->store($2);	}
 		|	statements IDENTIFIER COL print_line SC 
 		{	$4->setLabel($2);	
-			$$->store($4);	
-			std::cout<<"PRINT STORE"<<std::endl;	}
+			$$->store($4);	}
 		;
 
 assignment:	value EQ expression
-		{	$$ = new Assignment($1, $3);
-			std::cout<<"ASSIGNEMNT CREATION"<<std::endl;	}
+		{	$$ = new Assignment($1, $3);	}
 		;
 
 expression: 	expression SUB expression
-		{	$$ = new Expression($1, string($2), $3);
-			std::cout<<"SUB"<<std::endl;	}
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression ADD expression 
-		{	$$ = new Expression($1, string($2), $3);
-			std::cout<<"ADD"<<std::endl;	}
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression MUL expression 
-		{	$$ = new Expression($1, string($2), $3);
-			std::cout<<"MUL"<<std::endl;	}
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression DIV expression 
-		{	$$ = new Expression($1, string($2), $3);
-			std::cout<<"DIV"<<std::endl;	}
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression MOD expression 
-		{	$$ = new Expression($1, string($2), $3);
-			std::cout<<"MOD"<<std::endl;	}
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression L expression
-		{	$$ = new Expression($1, string($2), $3);
-			std::cout<<"LESS"<<std::endl;	}
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression G expression
-		{	$$ = new Expression($1, string($2), $3);
-			std::cout<<"GREATER"<<std::endl;	}
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression EQUALS expression	
-		{	$$ = new Expression($1, string($2), $3);
-			std::cout<<"EQUALS"<<std::endl;	}
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression NOTEQUALS expression
-		{	$$ = new Expression($1, string($2), $3);
-			std::cout<<"NOTEQUALS"<<std::endl;	}
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression AND expression
-		{	$$ = new Expression($1, string($2), $3);
-			std::cout<<"AND"<<std::endl;	}
+		{	$$ = new Expression($1, string($2), $3);	}
 		|		expression OR expression
-		{	$$ = new Expression($1, string($2), $3);
-			std::cout<<"OR"<<std::endl;	}
+		{	$$ = new Expression($1, string($2), $3);	}
 		| 		value
-		{	$$ = new Expression($1);
-			std::cout<<"VALUE CREATION"<<std::endl;	}
+		{	$$ = new Expression($1);	}
 		;
 
 value:	IDENTIFIER
-	{	$$ = new Location(string($1));
-		std::cout<<"VALUE CREATION"<<std::endl;	}
+	{	$$ = new Location(string($1));	}
 	|	IDENTIFIER OSB NUMBER CSB
-	{	$$ = new Location(string($1), $3);
-		std::cout<<"VALUE CREATION"<<std::endl;	}
+	{	$$ = new Location(string($1), $3);	}
 	|	IDENTIFIER OSB IDENTIFIER CSB	
-	{	$$ = new Location(string($1), string($3));
-		std::cout<<"VALUE CREATION"<<std::endl;	}
+	{	$$ = new Location(string($1), string($3));	}
 	|	NUMBER
-	{	$$ = new Location($1);
-		std::cout<<"VALUE CREATION"<<std::endl;	}
+	{	$$ = new Location($1);	}
 	;
 
 for_block:	FOR IDENTIFIER EQ value COMMA value block
-		{	$$ = new ForStatement(string($2), $4, $6, $7);
-			std::cout<<"FOR CREATION"<<std::endl;	}
+		{	$$ = new ForStatement(string($2), $4, $6, $7);	}
 		|	FOR IDENTIFIER EQ value COMMA value COMMA value block
-		{	$$ = new ForStatement(string($2), $4, $6, $8, $9);
-			std::cout<<"FOR CREATION"<<std::endl;	}
+		{	$$ = new ForStatement(string($2), $4, $6, $8, $9);	}
 		;
 
 if_block:	IF expression block
-		{	$$ = new IfElseStatement($2, $3);
-			std::cout<<"IF CREATION"<<std::endl;	}
+		{	$$ = new IfElseStatement($2, $3);	}
 		|	IF expression block ELSE block
-		{	$$ = new IfElseStatement($2, $3, $5);
-			std::cout<<"IF-ELSE CREATION"<<std::endl;	}
+		{	$$ = new IfElseStatement($2, $3, $5);	}
 		;
 
 while_block:	WHILE expression block
-			{	$$ = new WhileStatement($2, $3);
-				std::cout<<"WHILE CREATION"<<std::endl;	}
+			{	$$ = new WhileStatement($2, $3);	}
 			;
 
 goto_block:	GOTO IDENTIFIER IF expression
-		{	$$ = new GotoStatement(string($2), $4);
-			std::cout<<"GOTO CREATION"<<std::endl;	}
+		{	$$ = new GotoStatement(string($2), $4);	}
 		|	GOT IDENTIFIER
-		{	$$ = new GotoStatement(string($2));
-			std::cout<<"GOTO CREATION"<<std::endl;	}
+		{	$$ = new GotoStatement(string($2));	}
 		;
 
 block:	OP statements CP
-		{	$$ = new Block($2);
-			std::cout<<"BLOCK CREATION"<<std::endl;	}
+		{	$$ = new Block($2);	}
 		;
 
 print_line:	PRINT STRING COMMA value
-		{	$$ = new Print($2, $4);
-			std::cout<<"PRINT CREATION"<<std::endl;	}
+		{	$$ = new Print($2, $4);	}
 		|	PRINT STRING
-		{	$$ = new Print($2);	
-			std::cout<<"PRINT CREATION"<<std::endl;	}
+		{	$$ = new Print($2);	}
 		|	PRINT value
-		{	$$ = new Print($2);
-			std::cout<<"PRINT CREATION"<<std::endl;	}
+		{	$$ = new Print($2);	}
 		|	PRINTLN STRING
-		{	$$ = new Print($2);
-			std::cout<<"PRINT CREATION"<<std::endl;	}
+		{	$$ = new Print($2);	}
 		;
 
 read_line:	READ value
-		{	$$ = new ReadLine($2);
-			std::cout<<"READ CREATION"<<std::endl;	}
+		{	$$ = new ReadLine($2);	}
 		;
 
 %%
@@ -277,7 +226,7 @@ int main(int argc, char *argv[])
 
 	if (root) {
 		// AST Generation
-		printf("---------Entered Root-------\n");
+		printf("---------AST Traversal-------\n");
 		root->traverse();
 		}
 	return 0;
