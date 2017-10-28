@@ -24,6 +24,7 @@ union Node {
 	class ReadLine *read;
 	class Main *main;
 	Node() {
+		main = NULL;
 		num = 0;
 		val= NULL;
 		fields = NULL;
