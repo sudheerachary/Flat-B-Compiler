@@ -72,11 +72,13 @@ Block::Block(class Statements *statements) {
 }
 
 WhileStatement::WhileStatement(class Expression *cond, class Block *blk) {
+	this->stmt_type = string("while");
 	this->condition = cond;
 	this->while_block = blk;
 }
 
 ForStatement::ForStatement(string id, class Location *start, class Location *end, class Block *blk) {
+	this->stmt_type = string("for");
 	this->type = string("no step");
 	this->loop_variable = id;
 	this->v_start = start;
@@ -85,6 +87,7 @@ ForStatement::ForStatement(string id, class Location *start, class Location *end
 }
 
 ForStatement::ForStatement(string id, class Location *start, class Location *end, class Location *step, class Block *blk) {
+	this->stmt_type = string("for");
 	this->type = string("step");
 	this->loop_variable = id;
 	this->v_start = start;
@@ -94,12 +97,14 @@ ForStatement::ForStatement(string id, class Location *start, class Location *end
 }
 
 IfElseStatement::IfElseStatement(class Expression *expr, class Block *blk) {
+	this->stmt_type = string("if");
 	this->type = string("if");
 	this->condition = expr;
 	this->if_block = blk;
 }
 
 IfElseStatement::IfElseStatement(class Expression *expr, class Block *iblk, class Block *eblk) {
+	this->stmt_type = string("ifelse");
 	this->type = string("ifelse");
 	this->condition = expr;
 	this->if_block = iblk;
@@ -107,33 +112,39 @@ IfElseStatement::IfElseStatement(class Expression *expr, class Block *iblk, clas
 }
 
 GotoStatement::GotoStatement(string id) {
+	this->stmt_type = string("goto");
 	this->type = string("goto");
 	this->identifier = id;
 }
 
 GotoStatement::GotoStatement(string id, class Expression *cond) {
+	this->stmt_type = string("gotoif");
 	this->type = string("gotoif");
 	this->identifier = id;
 	this->condition = cond;
 }
 
 Print::Print(class Location *value) {
+	this->stmt_type = string("print");
 	this->type = string("loc");
 	this->value = value;
 }
 
 Print::Print(string text) {
+	this->stmt_type = string("print");
 	this->type = string("str");
 	this->text = text;
 }
 
 Print::Print(string text, class Location *value) {
+	this->stmt_type = string("print");
 	this->type = string("locstr");
 	this->text = text;
 	this->value = value;
 }
 
 ReadLine::ReadLine(class Location *value) {
+	this->stmt_type = string("read");
 	this->value = value;
 }
 
@@ -279,22 +290,36 @@ void Statements::traverse() {
 	TBS;
 	cout<<"<Statements>"<<endl;
 		tabs++;
-		for (int i = 0; i < statements.size(); i++)
+		for (int i = 0; i < statements.size(); i++) {
+			TBS;
+			cout<<"<Label: "<<statements[i]->getLabel()<<">"<<endl;
 			statements[i]->traverse();
+		}
 		tabs--;
 	TBS;
 	cout<<"</Statements>"<<endl;
 }
 
 void Expression::traverse() {
-	TBS;
-	cout<<"<Binary Expression Operator: "<<operand<<" >"<<endl;
+	if (stmt_type.compare("unary_expression") == 0) {
+		TBS;
+		cout<<"<Value>"<<endl;
+		tabs++;
+		loc->traverse();
+		tabs--;
+		TBS;
+		cout<<"</Value>"<<endl;
+	}
+	else { 
+		TBS;
+		cout<<"<Binary Expression Operator: "<<operand<<" >"<<endl;
 		tabs++;
 		lhs->traverse();
 		rhs->traverse();
 		tabs--;
-	TBS;
-	cout<<"</Binary Expression>"<<endl;
+		TBS;
+		cout<<"</Binary Expression>"<<endl;
+	}
 }
 
 void Assignment::traverse() {
@@ -322,10 +347,13 @@ void WhileStatement::traverse() {
 void ForStatement::traverse() {
 	TBS;
 	cout<<"<For Block>"<<endl;
-	TBS;
-	cout<<"<start: ";v_start->traverse();cout<<"/>"<<endl;
-	TBS;
-	cout<<"<end: ";v_end->traverse();cout<<"/>"<<endl;
+	TBS;cout<<"<loop variable: "<<loop_variable<<">"<<endl;
+	TBS;cout<<"<start: ";
+	v_start->traverse();
+	TBS;cout<<"/>"<<endl;
+	TBS;cout<<"<end: ";
+	v_end->traverse();
+	TBS;cout<<"/>"<<endl;
 	if (type.compare("step") == 0) {
 		TBS;
 		cout<<"<step: ";
@@ -387,6 +415,7 @@ void Print::traverse() {
 		value->traverse();
 		tabs--;
 	}
+	TBS;
 	cout<<" />";
 }
 

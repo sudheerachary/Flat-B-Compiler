@@ -117,7 +117,7 @@ class Statement:public AstNode {
 		void setLabel(string);
 		string getLabel();
 		//  traverse over tree
-		void traverse(){}
+		virtual void traverse(){}
 };
 
 class Location:public AstNode {
@@ -288,5 +288,4 @@ class Main:public AstNode {
 		Main(class FieldDeclarations *, class Statements *);
 		//  traverse over tree
 		void traverse();
-
 };
