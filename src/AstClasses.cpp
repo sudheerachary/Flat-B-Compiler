@@ -4,11 +4,38 @@ using namespace std;
 #define TBS print_tabs()
 int tabs = 0;
 const int width = 4;
+std::map<string, int> var_table;
+std::map<string, std::vector<int>> array_table;
 
 void print_tabs() {
 	for (int i = 0; i < tabs; i++)
 		for (int j = 0; j < width; j++)
 			cout<<" ";
+}
+
+int evaluate(int lhs, string operand, int rhs) {
+	if (operand.compare("+") == 0)
+		return (lhs + rhs);
+	if (operand.compare("-") == 0)
+		return (lhs - rhs);
+	if (operand.compare("*") == 0)
+		return (lhs * rhs);
+	if (operand.compare("/") == 0)
+		return (lhs / rhs);
+	if (operand.compare("%") == 0)
+		return (lhs % rhs);
+	if (operand.compare(">") == 0)
+		return (lhs > rhs);
+	if (operand.compare("<") == 0)
+		return (lhs < rhs);
+	if (operand.compare("==") == 0)
+		return (lhs == rhs);
+	if (operand.compare("!=") == 0)
+		return (lhs != rhs);
+	if (operand.compare("&&") == 0)
+		return (lhs && rhs);
+	if (operand.compare("||") == 0)
+		return (lhs || rhs);
 }
 
 Variable::Variable(string type, string identifier) {
@@ -217,6 +244,33 @@ std::vector<class Statement *> Statements::getStatements() {
 	return this->statements;
 }
 
+string Location::getType() {
+	return this->type; 
+}
+
+string Location::getIdentifier() {
+	return this->identifier;
+}
+
+string Location::getIndex() {
+	return this->index;
+}
+
+int Location::getValue() {
+	return this->value;
+}
+
+void Main::interpret() {
+	TBS;
+	cout<<"<Main>"<<endl;
+		tabs++;
+		field_declarations->interpret();
+		statements->interpret();
+		tabs--;
+	TBS;
+	cout<<"</Main>"<<endl;
+}
+
 void Main::traverse() {
 	TBS;
 	cout<<"<Main>"<<endl;
@@ -226,6 +280,17 @@ void Main::traverse() {
 		tabs--;
 	TBS;
 	cout<<"</Main>"<<endl;
+}
+
+void FieldDeclarations::interpret() {
+	TBS;
+	cout<<"<Declarations>"<<endl;
+		tabs++;
+		for (int i = 0; i < field_declarations.size(); ++i)
+			field_declarations[i]->interpret();
+		tabs--;
+	TBS;
+	cout<<"</Declarations>"<<endl;
 }
 
 void FieldDeclarations::traverse() {
@@ -239,6 +304,17 @@ void FieldDeclarations::traverse() {
 	cout<<"</Declarations>"<<endl;
 }
 
+void FieldDeclaration::interpret() {
+	TBS;
+	cout<<"<Declaration>"<<endl;
+		tabs++;
+		for (int i = 0; i < variables.size(); i++)
+			variables[i]->interpret();
+		tabs--;
+	TBS;
+	cout<<"</Declaration>"<<endl;
+}
+
 void FieldDeclaration::traverse() {
 	TBS;
 	cout<<"<Declaration>"<<endl;
@@ -250,6 +326,19 @@ void FieldDeclaration::traverse() {
 		tabs--;
 	TBS;
 	cout<<"</Declaration>"<<endl;
+}
+
+void Variable::interpret() {
+	TBS;
+	if (type.compare("Array") == 0) {
+		cout<<"<Array>"<<endl;
+		std::vector<int> temp(length);
+		array_table.insert(pair <string, std::vector<int>> (identifier, temp));
+	}
+	else {
+		cout<<"<Variable>"<<endl;
+		var_table.insert(pair <string, int> (identifier, 0));
+	}
 }
 
 void Variable::traverse() {
@@ -275,12 +364,36 @@ void Location::traverse() {
 	cout<<" />"<<endl;
 }
 
+int Location::interpret() {
+	TBS;
+	cout<<"<Location"<<endl;
+	if (type.compare("number") == 0)
+		return value;
+	else if (type.compare("variable") == 0)
+		return var_table[identifier];
+	else if (type.compare("array_const_index") == 0)
+		return array_table[identifier][value];
+	else
+		return array_table[identifier][var_table[index]];
+}
+
 void Block::traverse() {
 	TBS;
 	cout<<"<Block>"<<endl;
 		tabs++;
 		for (int i = 0; i < block_statements.size(); i++)
 			block_statements[i]->traverse();
+		tabs--;
+	TBS;
+	cout<<"</Block>"<<endl;
+}
+
+void Block::interpret() {
+	TBS;
+	cout<<"<Block>"<<endl;
+		tabs++;
+		for (int i = 0; i < block_statements.size(); i++)
+			block_statements[i]->interpret();
 		tabs--;
 	TBS;
 	cout<<"</Block>"<<endl;
@@ -295,6 +408,17 @@ void Statements::traverse() {
 			cout<<"<Label: "<<statements[i]->getLabel()<<">"<<endl;
 			statements[i]->traverse();
 		}
+		tabs--;
+	TBS;
+	cout<<"</Statements>"<<endl;
+}
+
+void Statements::interpret() {
+	TBS;
+	cout<<"<Statements>"<<endl;
+		tabs++;
+		for (int i = 0; i < statements.size(); i++)
+			statements[i]->interpret();
 		tabs--;
 	TBS;
 	cout<<"</Statements>"<<endl;
@@ -322,6 +446,29 @@ void Expression::traverse() {
 	}
 }
 
+int Expression::interpret() {
+	int value;
+	if (stmt_type.compare("unary_expression") == 0) {
+		TBS;
+		cout<<"<Value>"<<endl;
+		tabs++;
+		value = loc->interpret();
+		tabs--;
+		TBS;
+		cout<<"</Value>"<<endl;
+	}
+	else { 
+		TBS;
+		cout<<"<Binary Expression Operator: "<<operand<<" >"<<endl;
+		tabs++;
+		value = evaluate(lhs->interpret(), operand, rhs->interpret());
+		tabs--;
+		TBS;
+		cout<<"</Binary Expression>"<<endl;
+	}
+	return value;
+}
+
 void Assignment::traverse() {
 	TBS;
 	cout<<"<Assignment Expression>"<<endl;
@@ -333,6 +480,22 @@ void Assignment::traverse() {
 	cout<<"</Assignment Expression>"<<endl;
 }
 
+int Assignment::interpret() {
+	TBS;
+	cout<<"<Assignment Expression>"<<endl;
+		tabs++;
+		if (loc->getType().compare("identifier") == 0)
+			var_table[loc->getIdentifier()] = expr->interpret();
+		if (loc->getType().compare("array_const_index") == 0)
+			array_table[loc->getIdentifier()][loc->getValue()] = expr->interpret();
+		if (loc->getType().compare("array_var_index") == 0)
+			array_table[loc->getIdentifier()][var_table[loc->getIndex()]] = expr->interpret();	 
+		tabs--;
+	TBS;
+	cout<<"</Assignment Expression>"<<endl;
+	return 0;
+}
+
 void WhileStatement::traverse() {
 	TBS;
 	cout<<"<While Block>"<<endl;
@@ -342,6 +505,18 @@ void WhileStatement::traverse() {
 		tabs--;
 	TBS;
 	cout<<"</While Block>"<<endl;
+}
+
+int WhileStatement::interpret() {
+	TBS;
+	cout<<"<While Block>"<<endl;
+		tabs++;
+		while (condition->interpret())
+			while_block->interpret();
+		tabs--;
+	TBS;
+	cout<<"</While Block>"<<endl;
+	return 0;
 }
 
 void ForStatement::traverse() {
@@ -367,6 +542,30 @@ void ForStatement::traverse() {
 	cout<<"</For Block>"<<endl;
 }
 
+int ForStatement::interpret() {
+	TBS;
+	cout<<"<For Block>"<<endl;
+	tabs++;
+	if (type.compare("step") == 0) {
+		var_table.insert(pair <string, int> (loop_variable, 0));
+		for (int i = v_start->interpret(); i < v_end->interpret(); i+v_step->interpret()) {
+			var_table[loop_variable] = i;
+			for_block->interpret();			
+		}
+	}
+	else {
+		var_table.insert(pair <string, int> (loop_variable, 0));
+		for (int i = v_start->interpret(); i < v_end->interpret(); i++) {
+			var_table[loop_variable] = i;
+			for_block->interpret();	
+		}
+	}
+	tabs--;
+	TBS;
+	cout<<"</For Block>"<<endl;
+	return 0;
+}
+
 void IfElseStatement::traverse() {
 	TBS;
 	cout<<"<If Block>"<<endl;
@@ -384,6 +583,26 @@ void IfElseStatement::traverse() {
 		TBS;
 		cout<<"</Else Block>"<<endl;
 	}
+}
+
+int IfElseStatement::interpret() {
+	TBS;
+	cout<<"<If Block>"<<endl;
+	tabs++;	
+	if (type.compare("ifelse") == 0) {
+		if (condition->interpret())
+			if_block->interpret();
+		else
+			else_block->interpret();
+	}
+	else {
+		if (condition->interpret())
+			if_block->interpret();
+	}
+	tabs--;
+	TBS;
+	cout<<"<If Block>"<<endl;
+	return 0;
 }
 
 void GotoStatement::traverse() {
@@ -417,6 +636,20 @@ void Print::traverse() {
 	}
 	TBS;
 	cout<<" />";
+}
+
+int Print::interpret() {
+	TBS;
+	cout<<"<print>"<<endl;
+	if (type.compare("loc") == 0)
+		cout<<value->interpret();
+	else if (type.compare("locstr") == 0)
+		cout<<text<<value->interpret();
+	else
+		cout<<text;
+	TBS;
+	cout<<"</print>"<<endl;
+	return 0;
 }
 
 void ReadLine::traverse() {

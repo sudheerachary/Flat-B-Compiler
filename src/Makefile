@@ -13,4 +13,4 @@ clean:
 	rm -f *.c parser.tab.h *.output
 
 veryclean:
-	rm -rf *.c parser.tab.h *.output bcc
+	rm -rf *.c parser.tab.h *.output bcc output

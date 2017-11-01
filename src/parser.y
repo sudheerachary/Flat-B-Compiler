@@ -228,6 +228,9 @@ int main(int argc, char *argv[])
 		// AST Generation
 		printf("---------AST Traversal-------\n");
 		root->traverse();
+		// AST Interpretation
+		printf("---------AST Interpreter-------\n");
+		root->interpret();
 		}
 	return 0;
 }
