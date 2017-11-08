@@ -487,8 +487,7 @@ void Assignment::traverse() {
 int Assignment::interpret() {
 	TBS;
 	cout<<"<Assignment Expression>"<<endl;
-		tabs++;
-		TBS;	
+		tabs++;	
 		if (loc->getType().compare("variable") == 0) 
 			var_table[loc->getIdentifier()] = expr->interpret();
 		if (loc->getType().compare("array_const_index") == 0)

@@ -13,6 +13,6 @@
 		sum = sum + data[i];
  	}
 
-	println "Sum value: ";
+	print "Sum value: ", sum;
 }
 
