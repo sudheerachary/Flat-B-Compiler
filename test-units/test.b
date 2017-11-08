@@ -10,8 +10,8 @@
 	
 
 	sum = 0;
-	for i = 1, 100 {
-		sum = sum + data[i];
+	for j = 1, 100 {
+		sum = sum + data[j];
  	}
 
 	print "Sum value: ", sum;
