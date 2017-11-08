@@ -367,14 +367,18 @@ void Location::traverse() {
 int Location::interpret() {
 	TBS;
 	cout<<"<Location"<<endl;
-	if (type.compare("number") == 0)
+	if (type.compare("number") == 0) {
 		return value;
-	else if (type.compare("variable") == 0)
+	}
+	else if (type.compare("variable") == 0) {
 		return var_table[identifier];
-	else if (type.compare("array_const_index") == 0)
+	}
+	else if (type.compare("array_const_index") == 0) {
 		return array_table[identifier][value];
-	else
+	}
+	else {
 		return array_table[identifier][var_table[index]];
+	}
 }
 
 void Block::traverse() {
@@ -484,7 +488,8 @@ int Assignment::interpret() {
 	TBS;
 	cout<<"<Assignment Expression>"<<endl;
 		tabs++;
-		if (loc->getType().compare("identifier") == 0)
+		TBS;	
+		if (loc->getType().compare("variable") == 0) 
 			var_table[loc->getIdentifier()] = expr->interpret();
 		if (loc->getType().compare("array_const_index") == 0)
 			array_table[loc->getIdentifier()][loc->getValue()] = expr->interpret();
