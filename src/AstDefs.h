@@ -1,7 +1,25 @@
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/Type.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/IR/PassManager.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/IR/CallingConv.h>
+#include <llvm/IR/Verifier.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/ExecutionEngine/GenericValue.h>
+#include <llvm/ExecutionEngine/MCJIT.h>
+#include <llvm/Support/raw_ostream.h>
 #include <bits/stdc++.h>
+
 using namespace std;
+using namespace llvm;
 
 class AstNode {
+	virtual Value *codegen(){}
 };
 
 union Node {
@@ -37,6 +55,14 @@ union Node {
 typedef union Node YYSTYPE;
 #define YYSTYPE_IS_DECLARED 1
 
+class reportError {
+    public:
+        static llvm::Value *ErrorV(string str) {
+            cout<<str<<endl;
+            return 0;
+        }
+};
+
 class Variable:public AstNode {
 	private:
 		// length if array type
@@ -47,9 +73,9 @@ class Variable:public AstNode {
 		string type;	
 	public:
 		// normal variable constructor
-		Variable(string, string);
+		Variable(string);
 		// array variable constructor
-		Variable(string, string, unsigned int);
+		Variable(string, unsigned int);
 		// get length if array variable
 		int getLength();
 		// get type of variable
@@ -60,6 +86,8 @@ class Variable:public AstNode {
 		void traverse();
 		//	interpret the AST
 		void interpret();
+		//	generate code
+		Value *codegen();
 };
 
 class Variables:public AstNode {
@@ -90,6 +118,8 @@ class FieldDeclaration:public AstNode {
 		void traverse();
 		//	interpret field declaration
 		void interpret();
+		//	generate code
+		Value *codegen();
 };
 
 class FieldDeclarations:public AstNode {
@@ -106,6 +136,8 @@ class FieldDeclarations:public AstNode {
 		void traverse();
 		//	interpret field declarations
 		void interpret();
+		//	generate code
+		Value *codegen();
 };
 
 class Statement:public AstNode {
@@ -126,33 +158,38 @@ class Statement:public AstNode {
 		virtual void traverse(){}
 		//	interpret statement
 		virtual int interpret(){}
+		//	generate code
+		virtual Value *codegen(){}
 };
 
 class Location:public AstNode {
 	private:
 		// Location of storage 
-		string identifier, index;
-		// number 
-		unsigned int value;
+		string identifier;
+		// index expression
+		class Expression *index;
 		// type of variable
 		string type;
+		// number
+		unsigned int value;
 	public:
-		Location(unsigned int);
 		Location(string);
-		Location(string, unsigned int);
-		Location(string, string);
+		Location(unsigned int);
+		Location(string, class Expression *);
 		//	type of storage Location
 		string getType();
 		//	get identifier
 		string getIdentifier();
 		//	get index
-		string getIndex();
+		class Expression *getIndex();
 		//	get value
 		int getValue();
 		//  traverse over tree
 		void traverse();
 		//	interpret Location
 		int interpret();
+		//	generate code
+		Value *codegen();
 };
 
 class Expression:public Statement {
@@ -173,6 +210,10 @@ class Expression:public Statement {
 		void traverse();
 		//	interpret expression
 		int interpret();
+		// get type of expression
+		string getType();
+		//	generate code
+		Value *codegen();
 };
 
 class Assignment:public Statement {
@@ -187,6 +228,8 @@ class Assignment:public Statement {
 		void traverse();
 		//	interpret assignment
 		int interpret();
+		//	generate code
+		Value *codegen();
 };
 
 class WhileStatement:public Statement {
@@ -201,6 +244,8 @@ class WhileStatement:public Statement {
 		void traverse();
 		//	interpret while block
 		int interpret();
+		//	generate code
+		Value *codegen();
 };
 
 class ForStatement:public Statement {
@@ -220,6 +265,8 @@ class ForStatement:public Statement {
 		void traverse();
 		//	interpret for block
 		int interpret();
+		//	generate code
+		Value *codegen();
 };
 
 class IfElseStatement:public Statement {
@@ -239,6 +286,8 @@ class IfElseStatement:public Statement {
 		void traverse();
 		//	interpret if-else
 		int interpret();
+		//	generate code
+		Value *codegen();
 };
 
 class GotoStatement:public Statement {
@@ -254,6 +303,8 @@ class GotoStatement:public Statement {
 		GotoStatement(string, class Expression *);
 		//  traverse over tree
 		void traverse();
+		//	generate code
+		Value *codegen();
 };
 
 class Statements:public AstNode {
@@ -270,6 +321,8 @@ class Statements:public AstNode {
 		void traverse();
 		//	interpret statements
 		void interpret();
+		//	generate code
+		Value *codegen();
 };
 
 class Block:public AstNode {
@@ -282,6 +335,8 @@ class Block:public AstNode {
 		void traverse();
 		//	interpret block
 		void interpret();
+		//	generate code
+		Value *codegen();
 };
 
 class Print:public Statement {
@@ -300,6 +355,8 @@ class Print:public Statement {
 		void traverse();
 		//	interpret print
 		int interpret();
+		//	generate code
+		Value *codegen();
 };
 
 class ReadLine:public Statement {
@@ -310,6 +367,8 @@ class ReadLine:public Statement {
 		ReadLine(class Location *);
 		//  traverse over tree
 		void traverse();
+		//	generate code
+		Value *codegen();
 };
 
 class Main:public AstNode {
@@ -324,4 +383,6 @@ class Main:public AstNode {
 		void traverse();
 		//	interpret main
 		void interpret();
+		//	generate code
+		Value *codegen();
 };

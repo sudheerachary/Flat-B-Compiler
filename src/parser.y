@@ -73,9 +73,9 @@ variables:		variable
 	;
 
 variable:	IDENTIFIER
-		{	$$ = new Variable(string("Not Array"), string($1));	}
+		{	$$ = new Variable(string($1));	}
 		|	IDENTIFIER OSB NUMBER CSB
-		{	$$ = new Variable(string("Array"), string($1), $3);	}
+		{	$$ = new Variable(string($1), $3);	}
 		;
 
 statements:	{	$$ = new Statements();	}
@@ -148,10 +148,8 @@ expression: 	expression SUB expression
 
 value:	IDENTIFIER
 	{	$$ = new Location(string($1));	}
-	|	IDENTIFIER OSB NUMBER CSB
+	|	IDENTIFIER OSB expression CSB	
 	{	$$ = new Location(string($1), $3);	}
-	|	IDENTIFIER OSB IDENTIFIER CSB	
-	{	$$ = new Location(string($1), string($3));	}
 	|	NUMBER
 	{	$$ = new Location($1);	}
 	;

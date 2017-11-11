@@ -1,11 +1,35 @@
 #include <bits/stdc++.h>
 #include "AstDefs.h"
 using namespace std;
+using namespace llvm;
 #define TBS print_tabs()
 int tabs = 0;
 const int width = 4;
 std::map<string, int> var_table;
 std::map<string, std::vector<int>> array_table;
+static LLVMContext Context;
+static Module *ModuleOb = new Module("Flat-B Compiler jit", Context);
+static IRBuilder<> Builder(Context);
+static map<string, AllocaInst *> NamedValues;
+
+Function *createFunc(IRBuilder <> &Builder, string Name) {
+	FunctionType *functype = FunctionType::get(Builder.getInt32Ty(), false);
+	Function *foofunc = Function::Create(
+		functype, Function::ExternalLinkage, Name, ModuleOb);
+	return foofunc;
+}
+
+BasicBlock *createBB(Function *foofunc, string Name) {
+	return BasicBlock::Create(Context, Name, foofunc);
+}
+
+GlobalVariable *createGlob(IRBuilder <> &Builder, string Name) {
+	ModuleOb->getOrInsertGlobal(Name, Builder.getInt32Ty());
+	GlobalVariable *gvar = ModuleOb->getNamedGlobal(Name);
+	gvar->setLinkage(GlobalValue::CommonLinkage);
+	gvar->setAlignment(4);
+	return gvar;
+}
 
 void print_tabs() {
 	for (int i = 0; i < tabs; i++)
@@ -38,13 +62,13 @@ int evaluate(int lhs, string operand, int rhs) {
 		return (lhs || rhs);
 }
 
-Variable::Variable(string type, string identifier) {
-	this->type = type;
+Variable::Variable(string identifier) {
+	this->type = string("variable");
 	this->identifier = identifier; 
 }
 
-Variable::Variable(string type, string identifier, unsigned int len) {
-	this->type = type;
+Variable::Variable(string identifier, unsigned int len) {
+	this->type = string("array");
 	this->identifier = identifier;
 	this->length = len;
 }
@@ -82,14 +106,8 @@ Location::Location(string identifier) {
 	this->identifier = identifier;
 }
 
-Location::Location(string identifier, unsigned int index) {
-	this->type = string("array_const_index");
-	this->identifier = identifier;
-	this->value = index;
-}
-
-Location::Location(string identifier, string index) {
-	this->type = string("array_var_index");
+Location::Location(string identifier, class Expression *index) {
+	this->type = string("array");
 	this->identifier = identifier;
 	this->index = index;
 }
@@ -252,12 +270,16 @@ string Location::getIdentifier() {
 	return this->identifier;
 }
 
-string Location::getIndex() {
+class Expression *Location::getIndex() {
 	return this->index;
 }
 
 int Location::getValue() {
 	return this->value;
+}
+
+string Expression::getType() {
+	return this->stmt_type;
 }
 
 void Main::interpret() {
@@ -353,14 +375,24 @@ void Variable::traverse() {
 void Location::traverse() {
 	TBS;
 	cout<<"<Location ";
-	if (type.compare("number") == 0)
+	if (type.compare("number") == 0) {
+		TBS;
 		cout<<"number: "<<value;
-	else if (type.compare("variable") == 0)
+	}
+	else if (type.compare("variable") == 0) {
+		TBS;
 		cout<<"variable: "<<identifier;
-	else if (type.compare("array_const_index") == 0)
-		cout<<"identifier: "<<identifier<<" index: "<<value;
-	else
-		cout<<"identifier: "<<identifier<<" index: "<<index;	
+	}
+	else if (type.compare("array") == 0)  {
+		TBS;
+		cout<<"identifier: "<<identifier;
+		TBS;
+		cout<<"index: ";
+		tabs++;
+		index->traverse();
+		tabs--;
+	}
+	TBS;
 	cout<<" />"<<endl;
 }
 
@@ -373,11 +405,8 @@ int Location::interpret() {
 	else if (type.compare("variable") == 0) {
 		return var_table[identifier];
 	}
-	else if (type.compare("array_const_index") == 0) {
-		return array_table[identifier][value];
-	}
-	else {
-		return array_table[identifier][var_table[index]];
+	else if (type.compare("array") == 0) {
+		return array_table[identifier][index->interpret()];
 	}
 }
 
@@ -490,10 +519,8 @@ int Assignment::interpret() {
 		tabs++;	
 		if (loc->getType().compare("variable") == 0) 
 			var_table[loc->getIdentifier()] = expr->interpret();
-		if (loc->getType().compare("array_const_index") == 0)
-			array_table[loc->getIdentifier()][loc->getValue()] = expr->interpret();
-		if (loc->getType().compare("array_var_index") == 0)
-			array_table[loc->getIdentifier()][var_table[loc->getIndex()]] = expr->interpret();	 
+		if (loc->getType().compare("array") == 0)
+			array_table[loc->getIdentifier()][loc->getIndex()->interpret()] = expr->interpret();
 		tabs--;
 	TBS;
 	cout<<"</Assignment Expression>"<<endl;
@@ -663,4 +690,113 @@ void ReadLine::traverse() {
 		value->traverse();
 		tabs--;
 	cout<<" />";
+}
+
+Value *Variable::codegen() {
+	Value *V = ConstantInt::get(Context, APInt(32, 0));
+	return V;
+}
+
+Value *FieldDeclaration::codegen() {
+	for (int i = 0; i < variables.size(); i++) {
+		class Variable *variable = variables[i];
+		llvm::Type *type;
+		type = Type::getInt32Ty(Context);
+		if (variable->getType().compare("array") == 0) {
+			ArrayType *arraytype = ArrayType::get(type, variable->getLength());
+			PointerType *pointertype = PointerType::get(arraytype, 0);
+			GlobalVariable *global = new GlobalVariable(*ModuleOb, arraytype, false, GlobalValue::ExternalLinkage, 0, variable->getIdentifier());
+			global->setInitializer(ConstantAggregateZero::get(arraytype));
+		}
+		else {
+			PointerType *pointertype = PointerType::get(type, 0);
+			GlobalVariable *global = new GlobalVariable(*ModuleOb, pointertype, false, GlobalValue::ExternalLinkage, 0, variable->getIdentifier());
+		}
+	}
+	Value *v = ConstantInt::get(Context, APInt(32, 1));
+	return v;
+}
+
+Value *FieldDeclarations::codegen() {
+	for (int i = 0; i < field_declarations.size(); i++)
+		field_declarations[i]->codegen();
+	Value *v = ConstantInt::get(Context, APInt(32, 1));
+	return v;
+}
+
+Value *Expression::codegen() {
+	Value *left = lhs->codegen();
+	Value *right = rhs->codegen();
+
+	if (lhs->getType().compare("unary_expression") == 0)
+		left = Builder.CreateLoad(left);
+	if (rhs->getType().compare("unary_expression") == 0)
+		right = Builder.CreateLoad(right);
+	if (left == 0) 
+		return reportError::ErrorV("Error in left operand of " + operand);
+	if (right == 0)
+		return reportError::ErrorV("Error in right operand of " + operand);
+	Value *v;
+	if (operand.compare("+") == 0)
+		v = Builder.CreateAdd(left, right, "addtmp");
+	else if (operand.compare("-") == 0)
+		v = Builder.CreateSub(left, right, "subtmp");
+	else if (operand.compare("*") == 0)
+		v = Builder.CreateMul(left, right, "multmp");
+	else if (operand.compare("/") == 0)
+		v = Builder.CreateUDiv(left, right, "divtmp");
+	else if (operand.compare("%") == 0)
+		v = Builder.CreateURem(left, right, "modtmp");
+	else if (operand.compare("<") == 0)
+		v = Builder.CreateICmpULT(left, right, "ltcomparetmp");
+	else if (operand.compare(">") == 0)
+		v = Builder.CreateICmpUGT(left, right, "gtcomparetmp");
+	else if (operand.compare("==") == 0)
+		v = Builder.CreateICmpEQ(left, right, "equalcomparetmp");
+	else if (operand.compare("!=") == 0)
+		v = Builder.CreateICmpNE(left, right, "notequalcomparetmp");
+	return v;
+}
+
+Value *Statements::codegen() {
+	Value *v = ConstantInt::get(Context, APInt(32, 1));
+	for (int i = 0; i < statements.size(); i++)
+		statements[i]->codegen();
+	return v;
+}
+
+Value *Main::codegen() {
+	Value *v = ConstantInt::get(Context, APInt(32, 0));
+	field_declarations->codegen();
+	statements->codegen();
+	return v;
+}
+
+Value *Block::codegen() {
+	Value *v = ConstantInt::get(Context, APInt(32, 0));
+	for (int i = 0; i < block_statements.size(); i++)
+		block_statements[i]->codegen();
+	return v;
+}
+
+Value *Location::codegen() {
+	Value *v = NamedValues[identifier];
+	if (v == 0)
+		v = ModuleOb->getNamedGlobal(identifier);
+	if (v == 0)
+		return reportError::ErrorV("Unknown Variable name "+identifier);
+	if (type.compare("array") != 0)
+		return v;
+	if (this->index != NULL) {
+		Value *index = this->index->codegen();
+		if (this->index->getType().compare("unary_expression") == 0)
+			index = Builder.CreateLoad(index);
+		if (index == 0) 
+			return reportError::ErrorV("Invalid Index");
+		vector <Value *> array_index;
+		array_index.push_back(Builder.getInt32(0));
+		array_index.push_back(index);
+		v = Builder.CreateGEP(v, array_index, identifier+"_Index");
+		return v;
+	}
 }
