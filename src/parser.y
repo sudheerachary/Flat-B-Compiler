@@ -203,6 +203,7 @@ void yyerror (char const *s)
 
 int main(int argc, char *argv[])
 {
+	/*
 	if (argc == 1 ) {
 		fprintf(stderr, "Correct usage: bcc filename\n");
 		exit(1);
@@ -212,7 +213,8 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Passing more arguments than necessary.\n");
 		fprintf(stderr, "Correct usage: bcc filename\n");
 	}
-	yyin = fopen(argv[1], "r");
+	*/
+	yyin = fopen("../test-units/dummy.b", "r");
 
 	if (yyin == NULL){
 		printf("Can't open the given file!\n");
@@ -229,6 +231,8 @@ int main(int argc, char *argv[])
 		// AST Interpretation
 		printf("---------AST Interpreter-------\n");
 		root->interpret();
-		}
+		// Code Generation
+		root->codegen();
+	}
 	return 0;
 }

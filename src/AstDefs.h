@@ -66,7 +66,7 @@ class reportError {
 class Variable:public AstNode {
 	private:
 		// length if array type
-		unsigned int length;
+		int length;
 		// name of the variable
 		string identifier;
 		// type of variable either array or not
@@ -75,7 +75,7 @@ class Variable:public AstNode {
 		// normal variable constructor
 		Variable(string);
 		// array variable constructor
-		Variable(string, unsigned int);
+		Variable(string, int);
 		// get length if array variable
 		int getLength();
 		// get type of variable
@@ -171,10 +171,10 @@ class Location:public AstNode {
 		// type of variable
 		string type;
 		// number
-		unsigned int value;
+		int value;
 	public:
 		Location(string);
-		Location(unsigned int);
+		Location(int);
 		Location(string, class Expression *);
 		//	type of storage Location
 		string getType();
@@ -199,7 +199,7 @@ class Expression:public Statement {
 		// rhs of expression
 		class Expression *rhs;
 		// single values for assignment
-		unsigned int value;
+		int value;
 		class Location *loc;
 		// operator
 		string operand;
@@ -245,7 +245,7 @@ class WhileStatement:public Statement {
 		//	interpret while block
 		int interpret();
 		//	generate code
-		Value *codegen();
+		// Value *codegen();
 };
 
 class ForStatement:public Statement {
@@ -266,7 +266,7 @@ class ForStatement:public Statement {
 		//	interpret for block
 		int interpret();
 		//	generate code
-		Value *codegen();
+		// Value *codegen();
 };
 
 class IfElseStatement:public Statement {
@@ -304,7 +304,7 @@ class GotoStatement:public Statement {
 		//  traverse over tree
 		void traverse();
 		//	generate code
-		Value *codegen();
+		// Value *codegen();
 };
 
 class Statements:public AstNode {
@@ -356,7 +356,7 @@ class Print:public Statement {
 		//	interpret print
 		int interpret();
 		//	generate code
-		Value *codegen();
+		// Value *codegen();
 };
 
 class ReadLine:public Statement {
@@ -368,7 +368,7 @@ class ReadLine:public Statement {
 		//  traverse over tree
 		void traverse();
 		//	generate code
-		Value *codegen();
+		// Value *codegen();
 };
 
 class Main:public AstNode {
