@@ -40,8 +40,8 @@ using namespace std;
 "]"						{ return CSB; }
 "=="					{ yylval.val = strdup(yytext); return EQUALS; }
 "="						{ return EQ; }
-">"						{ return G; }
-"<"						{ return L; }
+">"						{ yylval.val = strdup(yytext); return G;	}
+"<"						{ yylval.val = strdup(yytext); return L; }
 ":"						{ return COL; }
 L?\"(\\.|[^\\"])*\"		{ yylval.val = strdup(yytext); return STRING; }
 ([ \t]|[ \n])			{ /* Do nothing */ }

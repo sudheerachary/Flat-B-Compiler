@@ -154,9 +154,9 @@ value:	IDENTIFIER
 	{	$$ = new Location($1);	}
 	;
 
-for_block:	FOR IDENTIFIER EQ value COMMA value block
+for_block:	FOR IDENTIFIER EQ expression COMMA expression block
 		{	$$ = new ForStatement(string($2), $4, $6, $7);	}
-		|	FOR IDENTIFIER EQ value COMMA value COMMA value block
+		|	FOR IDENTIFIER EQ expression COMMA expression COMMA expression block
 		{	$$ = new ForStatement(string($2), $4, $6, $8, $9);	}
 		;
 
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Correct usage: bcc filename\n");
 	}
 	*/
-	yyin = fopen("../test-units/dummy.b", "r");
+	yyin = fopen(argv[1], "r");
 
 	if (yyin == NULL){
 		printf("Can't open the given file!\n");
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
 		printf("---------AST Interpreter-------\n");
 		root->interpret();
 		// Code Generation
-		root->codegen();
+		// root->codegen();
 	}
 	return 0;
 }

@@ -253,14 +253,14 @@ class ForStatement:public Statement {
 		// looping variable 
 		string loop_variable;
 		// location of start end step size variables
-		class Location *v_start, *v_end, *v_step;
+		class Expression *v_start, *v_end, *v_step;
 		// block under for
 		class Block *for_block;
 		// with step or no
 		string type;
 	public:
-		ForStatement(string, class Location *, class Location *, class Block *);
-		ForStatement(string, class Location *, class Location *, class Location *, class Block *);
+		ForStatement(string, class Expression *, class Expression *, class Block *);
+		ForStatement(string, class Expression *, class Expression *, class Expression *, class Block *);
 		//  traverse over tree
 		void traverse();
 		//	interpret for block
@@ -367,6 +367,8 @@ class ReadLine:public Statement {
 		ReadLine(class Location *);
 		//  traverse over tree
 		void traverse();
+		//	interpret over tree
+		int interpret();
 		//	generate code
 		// Value *codegen();
 };
@@ -382,7 +384,7 @@ class Main:public AstNode {
 		//  traverse over tree
 		void traverse();
 		//	interpret main
-		void interpret();
+		int interpret();
 		//	generate code
 		Value *codegen();
 };
