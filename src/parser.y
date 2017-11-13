@@ -4,7 +4,6 @@
   extern "C" int yylex();
   extern "C" int yyparse();
   extern "C" FILE *yyin;
-  extern "C" int line_num;
   extern "C" int errors;
   extern union Node yylval;
   void yyerror (char const *s);
@@ -202,7 +201,7 @@ read_line:	READ value
 void yyerror (char const *s) 
 {	
 	errors++;
-	printf("Error: %s at %d\n", s, line_num);
+	printf("Error: %s\n", s);
 }
 
 int main(int argc, char *argv[]) 

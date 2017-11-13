@@ -7,7 +7,6 @@
 
 extern union Node yylval;
 using namespace std;
-int line_num = 0;
 %}
 
 %%
@@ -46,6 +45,4 @@ int line_num = 0;
 \"(\\n|\\t|\\'|\\\\|\\\"|[^\\"'])*\"	{ yylval.val = strdup(yytext); return STRING; }
 ([ \t]|[ \n])			{ /* Do nothing */ }
 .						{ return ETOK; }
-"\\".*					/* for comments */
-\n 						{ line_num++; }
 %%
