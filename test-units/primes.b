@@ -4,7 +4,7 @@
 }
 
 {
-	read N;
+	N = 20;
 	for i = 2, N {
 		flag = 0;
 		for j = 2, i {

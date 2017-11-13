@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
 		// AST Generation
 		// root->traverse();
 		// AST Interpretation
-		root->interpret();
+		// root->interpret();
 		// Code Generation
 		root->codegen();
 	}

@@ -2,7 +2,7 @@
 	int r, tmp, N;
 }
 {
-	read N;
+	N = 100;
 	tmp = N;
 	while tmp != 0 {
 		r = tmp%2;
