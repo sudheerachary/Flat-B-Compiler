@@ -1,6 +1,8 @@
 {
 	int n, temp;
 	int A[100];
+	int j;
+	int i;
 }
 
 { 

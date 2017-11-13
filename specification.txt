@@ -1,55 +1,91 @@
-1. Data Types
 
-Inegers and Array of Integers.
+----- Features of FLAT-B Programming Language -----
 
-int data, array[100];
-int sum;
+1. Data Types:
 
-All the variables have to be declared in the declblock{....} before being used
-in the codeblock{...}. Multiple variables can be declared in the statement 
-and each declaration statement ends with a semi-colon. 
+	Inegers and Array of Integers.
+		
+	Format:
+		int <variable>
+		int <variable> [ <number> ];
 
-2. Expressions
+	examples:
+		int data, array[100];
+		int sum;
 
-3. for loop
+2. Declaration Block:
 
-for i = 1, 100 {
-	.....
-}
+	All the variables have to be declared in the declblock{....} before being used
 
-for i = 1, 100, 2 {
-	.....
-}
+3. Code Block:
 
-4. if-else statement
+	in the codeblock{...}. Multiple variables can be declared in the statement and each declaration statement ends with a semi-colon. 
 
-	if expression {
-	....
-	}
-	....
+4. Expressions:
 
-	if expression {
-	...
-	}
-	else {
-	....
-	}
+	Addition, Subtraction, Multiplication, Division, Mod operations are supported on integers of any arithmatic expressions.
+	
+	examples:
+		v = 1 + 2	
+		v = a - 1;
+		v = 2*b / a;
+		v = A[i] * B[j];
+		v = A[i] / A[i+1];
 
-5. while statment
+5. For Statement:
+	
+	Types of for-loops supported
 
-	while expression {
+	Format:
 
-	}
+	Type-1:
 
-6. conditional and unconditional goto
+		for i = <start_expression>, <end_expression> {
+			.....
+		}
 
-	got label
+	Type-2:	
+	
+		for i = <start_expression>, <end_expression>, <step_expression> {
+			.....
+		}
 
-	goto label if expression
+6. If-Else Statement:
+	
+	Format:
+		if <condition> {
+			....
+		}
 
-7. print/read
+		if <condition> {
+			...
+		}
+		else {
+			....
+		}
 
-	print "blah...blah", val
-	println "new line at the end"
-	read sum
-	read data[i]
+7. While Statement:
+
+	Format:
+		while <condition> {
+
+		}
+
+8. Goto Statement:
+
+	Format:
+		got <label>
+		goto <label> if <condition>
+
+9. Print Statement: 
+	
+	Format:
+		print <variable>
+		print <string>
+		print <string>, <variable>
+		println <string>
+
+10. Read Statement:
+	
+	Format:
+		read <variable>	

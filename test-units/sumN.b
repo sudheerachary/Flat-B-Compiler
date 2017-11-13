@@ -1,5 +1,6 @@
 {
 	int data[100];
+	int i, sum;
 }
 
 {
@@ -15,4 +16,3 @@
 
 	print "Sum value: ", sum;
 }
-

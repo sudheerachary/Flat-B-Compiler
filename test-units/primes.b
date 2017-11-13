@@ -1,9 +1,11 @@
 {
-	int flag;
+	int i, j, flag;
+	int N;
 }
 
 {
-	for i = 2, 10 {
+	read N;
+	for i = 2, N {
 		flag = 0;
 		for j = 2, i {
 			if i%j == 0 {
@@ -15,4 +17,3 @@
 		}
 	}
 }
-

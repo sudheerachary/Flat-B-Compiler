@@ -1,13 +1,13 @@
 %{
 #include "AstDefs.h"
 #include "parser.tab.h"
-
 #include <bits/stdc++.h>
 
 #define YY_DECL extern "C" int yylex()
 
 extern union Node yylval;
 using namespace std;
+int line_num = 0;
 %}
 
 %%
@@ -43,7 +43,9 @@ using namespace std;
 ">"						{ yylval.val = strdup(yytext); return G;	}
 "<"						{ yylval.val = strdup(yytext); return L; }
 ":"						{ return COL; }
-L?\"(\\.|[^\\"])*\"		{ yylval.val = strdup(yytext); return STRING; }
+\"(\\n|\\t|\\'|\\\\|\\\"|[^\\"'])*\"	{ yylval.val = strdup(yytext); return STRING; }
 ([ \t]|[ \n])			{ /* Do nothing */ }
 .						{ return ETOK; }
+"\\".*					/* for comments */
+\n 						{ line_num++; }
 %%

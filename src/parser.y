@@ -4,9 +4,12 @@
   extern "C" int yylex();
   extern "C" int yyparse();
   extern "C" FILE *yyin;
+  extern "C" int line_num;
+  extern "C" int errors;
   extern union Node yylval;
   void yyerror (char const *s);
   class Main *root = NULL;
+  int errors = 0;
 %}
 
 %start program
@@ -196,14 +199,14 @@ read_line:	READ value
 
 %%
 
-void yyerror (char const *s)
-{
-       fprintf (stderr, "%s\n", s);
+void yyerror (char const *s) 
+{	
+	errors++;
+	printf("Error: %s at %d\n", s, line_num);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) 
 {
-	/*
 	if (argc == 1 ) {
 		fprintf(stderr, "Correct usage: bcc filename\n");
 		exit(1);
@@ -213,7 +216,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Passing more arguments than necessary.\n");
 		fprintf(stderr, "Correct usage: bcc filename\n");
 	}
-	*/
+
 	yyin = fopen(argv[1], "r");
 
 	if (yyin == NULL){
@@ -226,13 +229,11 @@ int main(int argc, char *argv[])
 
 	if (root) {
 		// AST Generation
-		printf("---------AST Traversal-------\n");
-		root->traverse();
+		// root->traverse();
 		// AST Interpretation
-		printf("---------AST Interpreter-------\n");
 		root->interpret();
 		// Code Generation
-		// root->codegen();
+		root->codegen();
 	}
 	return 0;
 }

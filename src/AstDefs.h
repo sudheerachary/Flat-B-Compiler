@@ -245,7 +245,7 @@ class WhileStatement:public Statement {
 		//	interpret while block
 		int interpret();
 		//	generate code
-		// Value *codegen();
+		Value *codegen();
 };
 
 class ForStatement:public Statement {
@@ -266,7 +266,7 @@ class ForStatement:public Statement {
 		//	interpret for block
 		int interpret();
 		//	generate code
-		// Value *codegen();
+		Value *codegen();
 };
 
 class IfElseStatement:public Statement {
@@ -303,8 +303,10 @@ class GotoStatement:public Statement {
 		GotoStatement(string, class Expression *);
 		//  traverse over tree
 		void traverse();
+		//	interpret over tree
+		int interpret();
 		//	generate code
-		// Value *codegen();
+		Value *codegen();
 };
 
 class Statements:public AstNode {
@@ -356,7 +358,7 @@ class Print:public Statement {
 		//	interpret print
 		int interpret();
 		//	generate code
-		// Value *codegen();
+		Value *codegen();
 };
 
 class ReadLine:public Statement {
@@ -370,7 +372,7 @@ class ReadLine:public Statement {
 		//	interpret over tree
 		int interpret();
 		//	generate code
-		// Value *codegen();
+		Value *codegen();
 };
 
 class Main:public AstNode {
