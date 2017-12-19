@@ -1,5 +1,5 @@
 # Flat-B Language Compiler
-Flat-B is a Programming Language mainly consists of declaration block where all the used variables are declared, code block consists of program logic expressed in multiple arithmatic expressions, assignments, different kind of loops.
+Flat-B is a Programming Language mainly consists of declaration block where all the used variables are declared, code block consists of program logic expressed in multiple arithmetic expressions, assignments, different kind of loops.
 
 ## Dependencies
 
